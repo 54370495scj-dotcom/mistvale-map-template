@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="原创虚构地图与攻略交互模板。无需账号，不连接游戏服务。">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' data:; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>雾川行记 | 互动地图模板</title>
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="data.js"></script><script defer src="core.js"></script><script defer src="app.js"></script>
+</head>
+<body>
+  <a href="#map-panel" class="skip-link">跳到地图</a>
+  <header class="topbar">
+    <div class="brand"><span class="seal" aria-hidden="true">雾</span><div><h1>雾川行记</h1><p>一张地图，一段旅程</p></div></div>
+    <div class="template-note"><span>原创示例</span><p>互动地图与攻略模板<br>非真实游戏资料</p></div>
+    <button id="help-open" class="quiet-button">使用说明</button>
+  </header>
+  <main class="app-layout">
+    <aside class="directory" aria-label="地图目录与筛选">
+      <div class="directory-heading"><h2>探索图鉴</h2><span id="total-count">16 处</span></div>
+      <label class="field-label" for="region-select">当前区域</label><select id="region-select"></select>
+      <label class="search-box"><span class="sr-only">搜索当前区域</span><span aria-hidden="true">⌕</span><input id="search" type="search" aria-label="搜索当前区域" placeholder="搜索地名、线索…" autocomplete="off"></label>
+      <fieldset class="category-field"><legend>显示点位</legend><div id="categories" class="category-grid"></div></fieldset>
+      <div class="filter-options"><label><input type="checkbox" id="favorites-only">只看收藏</label><label><input type="checkbox" id="hide-completed">隐藏已探索</label></div>
+      <div class="list-heading"><h3>本区点位</h3><span id="visible-count" aria-live="polite"></span><button class="text-button" id="reset-filters">重置筛选</button></div>
+      <ul id="point-list" class="point-list"></ul>
+      <div class="local-storage"><span class="status-dot" aria-hidden="true"></span><span id="storage-status">进度仅保存在此浏览器</span></div>
+    </aside>
+    <section class="map-workspace" id="map-panel" aria-label="互动地图">
+      <div class="map-heading"><div><h2 id="region-title">雾川谷</h2><p id="region-subtitle">沿溪入谷，循灯而行</p></div><label class="route-switch"><input type="checkbox" id="show-route" checked>显示推荐路线</label></div>
+      <div class="map-frame">
+        <svg id="map" viewBox="0 0 1100 700" role="group" aria-label="可平移缩放的地图。方向键移动，加减键缩放，0 键复位。" tabindex="0">
+          <title>原创示意地图</title><image id="map-art" x="0" y="0" width="1100" height="700" href="assets/mistvale.svg"></image><g id="route-layer" aria-hidden="true"></g><g id="marker-layer"></g>
+        </svg>
+        <div class="map-tools" aria-label="地图缩放"><button id="zoom-in" aria-label="放大地图">＋</button><button id="zoom-out" aria-label="缩小地图">−</button><button id="reset-view" aria-label="复位地图">⌖</button></div>
+        <div class="map-caption"><span id="zoom-label">100%</span><span>拖动平移 · 滚轮缩放</span></div>
+        <span class="map-badge">虚构地形 · 非实际地图</span>
+      </div>
+      <button id="mobile-detail-link" class="mobile-detail-link" hidden>查看所选点位详情</button>
+      <section class="route-section" aria-labelledby="route-title"><div class="route-heading"><div><span class="route-kicker">推荐行程</span><h3 id="route-title"></h3></div><span id="route-count"></span></div><p id="route-description"></p><ol id="route-steps"></ol></section>
+    </section>
+    <aside class="details-column" aria-label="点位详情与进度">
+      <section class="progress-panel"><div class="progress-heading"><h2>本区探索</h2><strong id="progress-number">0<small> / 8</small></strong></div><progress id="region-progress" value="0" max="8" aria-label="本区探索进度"></progress><p id="progress-caption">每一步，都值得记录。</p></section>
+      <section id="point-detail" class="point-detail" aria-live="polite"></section>
+      <section class="backup-panel"><h3>带走你的行记</h3><p>备份是本地 JSON 文件。不会上传到服务器。</p><div class="backup-actions"><button id="export-progress" class="quiet-button">导出进度</button><button id="import-progress" class="quiet-button">导入进度</button></div><input id="import-file" type="file" accept="application/json,.json" hidden><button id="clear-progress" class="text-button danger">清空演示进度</button></section>
+    </aside>
+  </main>
+  <footer>所有地形、地名与攻略均为原创虚构示例。替换素材前，请确认相应使用权。</footer>
+  <div id="notification" role="status" aria-live="polite" class="notification" hidden></div>
+  <dialog id="help-dialog"><button id="help-close" class="dialog-close" aria-label="关闭说明">×</button><h2>把探索，留在地图上</h2><p>点击地图标记或左侧目录，阅读线索并记录探索进度。</p><ul><li>拖动地图平移，滚轮或加减按钮缩放。</li><li>地图获得焦点后，方向键移动，+ / − 缩放，0 复位。</li><li>手机可单指拖动，使用右上角按钮缩放。</li><li>点位、图鉴与路线共用同一份本地进度。</li><li>当前筛选可能隐藏部分点位，点击路线节点会清除筛选并定位。</li><li>无账号、无跟踪、无在线 AI。浏览器数据清除后，未导出的进度会丢失。</li></ul><p class="help-small">这是可复用交互模板，不是真实游戏攻略。查看源码包 README 了解修改与授权说明。</p></dialog>
+  <noscript><p class="noscript">需要启用 JavaScript 才能使用互动地图。源码包中包含原创示例数据与使用说明。</p></noscript>
+</body>
+</html>
